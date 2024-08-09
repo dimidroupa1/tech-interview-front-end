@@ -3,16 +3,16 @@ import { apiSlice } from "../api/apiSlice";
 export const articleApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createArticle: builder.mutation({
-      query: ({ data }) => ({
+      query: (data) => ({
         url: "create-article",
         method: "POST",
-        body: { data },
+        body: data,
         credentials: "include" as const,
       }),
     }),
     getAllArticles: builder.query({
-      query: () => ({
-        url: "get-all-articles",
+      query: ({ page = 1, search = "" }) => ({
+        url:`get-all-articles?page=${page}&search=${search}`,
         method: "GET",
       }),
     }),
@@ -22,6 +22,24 @@ export const articleApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    updateArticle: builder.mutation({
+      query: (data) => ({
+        url: `edit-article/${data._id}`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+        body: data,
+        credentials: "include" as const,
+      }),
+    }),
+    deleteArticle: builder.mutation({
+      query: (id) => ({
+        url: `delete-article/${id}`,
+        method: "DELETE",
+        credentials: "include" as const,
+      }),
+    }),
   }),
 });
 
@@ -29,4 +47,6 @@ export const {
   useCreateArticleMutation,
   useGetAllArticlesQuery,
   useGetArticleByIdQuery,
+  useUpdateArticleMutation,
+  useDeleteArticleMutation,
 } = articleApi;

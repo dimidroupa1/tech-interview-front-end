@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 type Props = {
@@ -7,9 +10,15 @@ type Props = {
 };
 
 const ArticlePreview = ({ data }: Props) => {
+  const pathname = usePathname();
+
   return (
     <Link
-      href={`/article/${data._id}`}
+      href={
+        pathname?.includes("admin")
+          ? `/admin/article/${data._id}`
+          : `/article/${data._id}`
+      }
       className="w-full h-[250px] border p-5 rounded-md hover:border-2 hover:shadow-md transition-all cursor-pointer flex items-start gap-4"
     >
       <Image

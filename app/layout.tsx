@@ -9,6 +9,8 @@ import { ReduxProvider } from "@/lib/providers/ReduxProvider";
 import { CustomProvider } from "@/lib/providers/CustomProvider";
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
+import Sidebar from "@/components/Sidebar";
+import LocalProvider from "@/lib/providers/LocalProvider";
 
 const popins = Poppins({
   subsets: ["latin"],
@@ -34,9 +36,21 @@ export default function RootLayout({
         <ReduxProvider>
           <SessionProvider>
             <CustomProvider>
-              {pathname !== "/login" && pathname !== "/sign-up" && pathname !== "/verification" && <Header />}
-              {children}
-              <Toaster position="top-center" reverseOrder={false} />
+              <LocalProvider>
+                {pathname !== "/login" &&
+                  pathname !== "/sign-up" &&
+                  pathname !== "/verification" && <Header />}
+                <main
+                  className={`max-w-7xl mx-auto h-screen ${
+                    pathname?.includes("admin") && "flex flex-col md:flex-row"
+                  }`}
+                >
+                  {pathname?.includes("admin") && <Sidebar />}
+
+                  {children}
+                  <Toaster position="top-center" reverseOrder={false} />
+                </main>
+              </LocalProvider>
             </CustomProvider>
           </SessionProvider>
         </ReduxProvider>

@@ -5,6 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,9 +18,18 @@ import {
 
 type Props = {};
 
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
 const LoginPage = (props: Props) => {
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({
+    email: undefined,
+    password: undefined,
+  });
   const [login, { isSuccess, error }] = useLoginMutation();
   const [socialAuth, { isSuccess: isSuccessSocial, error: errorSocial }] =
     useSocialAuthMutation();
@@ -53,7 +63,22 @@ const LoginPage = (props: Props) => {
   }, []);
 
   const handleClick = async () => {
-    await login({ email, password });
+    try {
+      loginSchema.parse({ email, password });
+
+      await login({ email, password });
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const fieldErrors = validationError.errors.reduce(
+          (acc, error) => ({
+            ...acc,
+            [error.path[0]]: error.message,
+          }),
+          {}
+        );
+        setErrors(fieldErrors);
+      }
+    }
   };
 
   return (
@@ -71,7 +96,10 @@ const LoginPage = (props: Props) => {
               type="email"
               className={`${cn("w-full")}`}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrors((prev) => ({ ...prev, email: undefined }));
+              }}
             />
           </div>
           <div className="w-full space-y-1">
@@ -81,7 +109,10 @@ const LoginPage = (props: Props) => {
               type="password"
               className={`${cn("w-full")}`}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors((prev) => ({ ...prev, password: undefined }));
+              }}
             />
           </div>
         </div>

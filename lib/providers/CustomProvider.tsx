@@ -1,7 +1,11 @@
 "use client";
 
-import Loading from "@/components/Loading";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import dynamic from "next/dynamic";
+
+const DynamicLoading = dynamic(() => import("@/components/Loading"), {
+  ssr: false,
+});
 
 export const CustomProvider = ({
   children,
@@ -10,5 +14,5 @@ export const CustomProvider = ({
 }>) => {
   const { isLoading } = useLoadUserQuery({});
 
-  return <>{isLoading ? <Loading /> : <>{children}</>}</>;
+  return <>{isLoading ? <DynamicLoading /> : <>{children}</>}</>;
 };

@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { AiOutlineCamera } from "react-icons/ai";
 import toast from "react-hot-toast";
+import { useLogOutQuery } from "@/redux/features/auth/authApi";
+import { signOut } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 type Props = {
   user: any;
@@ -26,6 +29,10 @@ const Profile = ({ user }: Props) => {
   const [newPassword, setNewPassword] = useState<string>();
   const [updateAvatar, { isSuccess, error }] = useUpdatedAvatarMutation();
   const [loadUser, setLoadUser] = useState<boolean>(false);
+  const [logout, setLogout] = useState<boolean>(false);
+  const {} = useLogOutQuery(undefined, {
+    skip: !logout ? true : false,
+  });
   const {} = useLoadUserQuery(undefined, { skip: loadUser ? false : true });
   const [
     editProfile,
@@ -73,6 +80,11 @@ const Profile = ({ user }: Props) => {
     }
 
     await updatePassword({ oldPassword, newPassword });
+  };
+
+  const handleLogout = async () => {
+    setLogout(true);
+    await signOut();    
   };
 
   useEffect(() => {
@@ -198,6 +210,13 @@ const Profile = ({ user }: Props) => {
 
         <Button className="w-fit" onClick={passwordChangeHandler}>
           Change password
+        </Button>
+
+        <Button
+          className={`${cn("bg-red-400 hover:bg-red-300")}`}
+          onClick={handleLogout}
+        >
+          Logout
         </Button>
       </div>
     </div>
